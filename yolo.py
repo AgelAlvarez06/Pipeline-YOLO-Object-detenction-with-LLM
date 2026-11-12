@@ -19,10 +19,8 @@ from datasets import load_dataset
 from PIL import Image
 from tqdm import tqdm
 from ultralytics import YOLO
- 
-# --------------------------------------------------------------------------
+
 # Configuración
-# --------------------------------------------------------------------------
 SEED = 42
 TRAIN_SEQUENCES = 5
 VAL_SEQUENCES = 1
@@ -62,10 +60,9 @@ CLASS_NAMES = {
  
 Image.MAX_IMAGE_PIXELS = None
  
- 
-# --------------------------------------------------------------------------
+
 # Entorno
-# --------------------------------------------------------------------------
+
 def mount_drive_if_colab():
     """Monta Google Drive solo si se ejecuta en Colab (opcional)."""
     try:
@@ -84,10 +81,9 @@ def check_gpu():
         )
     print(torch.cuda.get_device_name(0))
  
- 
-# --------------------------------------------------------------------------
+
 # Acceso al dataset (streaming)
-# --------------------------------------------------------------------------
+
 def get_stream(split, with_image=True):
     """
     with_image=True : frames completos, imagen como bytes crudos (sin decodificar).
@@ -114,10 +110,9 @@ def get_stream(split, with_image=True):
 def is_valid_row(row):
     return row.get("annotation_status") == "present" and row.get("objects") is not None
  
- 
-# --------------------------------------------------------------------------
+
 # Escaneo de secuencias (con caché en JSON)
-# --------------------------------------------------------------------------
+
 def load_cache():
     if SEQ_CACHE.exists():
         return json.loads(SEQ_CACHE.read_text(encoding="utf-8"))
@@ -212,10 +207,8 @@ def iter_selected_rows(split, selected_ids):
     finally:
         bar.close()
  
- 
-# --------------------------------------------------------------------------
-# Tiles y etiquetas en formato YOLO
-# --------------------------------------------------------------------------
+
+
 def tile_starts(length, tile, overlap):
     if length <= tile:
         return [0]
@@ -282,10 +275,9 @@ def process_frame(args):
     image.close()
     return frame_id, saved
  
- 
-# --------------------------------------------------------------------------
+
 # Manifiestos de progreso (para reanudar tras un corte)
-# --------------------------------------------------------------------------
+
 def load_manifest(split, kind):
     path = DATA_DIR / f"{kind}_{split}.json"
     if path.exists():
@@ -438,10 +430,9 @@ def build_yolo_dataset():
     print(f"Tiles etiquetados: {train_tiles} train; {val_tiles} validation")
     print(f"Configuración guardada en: {DATA_DIR / 'data.yaml'}")
  
- 
-# --------------------------------------------------------------------------
+
 # Revisión del dataset
-# --------------------------------------------------------------------------
+
 def check_dataset():
     for split in ("train", "val"):
         images = list((DATA_DIR / "images" / split).glob("*.jpg"))
@@ -451,9 +442,8 @@ def check_dataset():
             raise RuntimeError(f"El split {split} está vacío o no tiene etiquetas.")
  
  
-# --------------------------------------------------------------------------
 # Entrenamiento, validación y predicción (sin cambios)
-# --------------------------------------------------------------------------
+
 def train_model():
     model = YOLO("yolo11n.pt")
  
@@ -506,10 +496,9 @@ def predict_sample(best_model):
     print("Imagen de prueba:", val_images[0])
     print("Resultado anotado en runs/detect/predict")
  
- 
-# --------------------------------------------------------------------------
+
 # Main
-# --------------------------------------------------------------------------
+
 def main():
     mount_drive_if_colab()
     check_gpu()
