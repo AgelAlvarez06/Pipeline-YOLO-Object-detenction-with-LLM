@@ -1,0 +1,22 @@
+{
+  "train": {
+    "UAV-BASE-13/1": 78,
+    "UAV-BASE-13/2": 137,
+    "UAV-BASE-13/3": 142,
+    "UAV-BASE-13/4": 143,
+    "UAV-BASE-13/5": 144,
+    "UAV-BASE-14/1": 333,
+    "UAV-BASE-14/2": 125,
+    "UAV-BASE-14/5": 110,
+    "UAV-BASE-14/8": 145,
+    "UAV-BASE-14/9": 170,
+    "NJU-xianlin/1": 174,
+    "NJU-xianlin/5": 131,
+    "NJU-xianlin/6": 221
+  },
+  "validation": {
+    "UAV-BASE-13/6": 123,
+    "UAV-BASE-14/3": 151,
+    "UAV-BASE-14/7": 274
+  }
+}
