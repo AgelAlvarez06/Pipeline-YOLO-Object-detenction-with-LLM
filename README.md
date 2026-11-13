@@ -10,7 +10,7 @@ Since the frames are too large to feed whole into the model, the pipeline **spli
 |---|---|
 | `yolo.py` | Full pipeline: sequence scanning, parallel tiling, training, validation and a sample prediction. |
 | `prediccion.py` | Draws the boxes predicted by the trained model, with confidence in %, on a validation image. |
-| `agente/` | Agente de análisis RAG: exporta detecciones, las indexa en ChromaDB y responde preguntas con un LLM (ver abajo). |
+| `agente.py` | Agente de análisis RAG en un solo archivo: exporta detecciones, las indexa en ChromaDB y responde preguntas con un LLM (ver abajo). |
 | `tests/` | Tests del agente (`pytest`, sin LLM real ni red). |
 
 ## Requirements
@@ -81,15 +81,15 @@ Classes: `0: pedestrian`, `1: car`, `2: bus`, `3: truck`.
 Un agente conversacional que responde en español preguntas libres sobre los resultados de YOLO, cita de qué frame o métrica sale cada cifra y genera gráficas.
 
 ```
-best.pt + imágenes ──► agente.exportar_detecciones ──► resultados/detecciones/<frame>.json
+best.pt + imágenes ──► agente.py exportar ──► resultados/detecciones/<frame>.json
                                                          + metricas.json
                                                                │
-                         agente.documentos + agente.indexar ◄──┘
+                                     agente.py indexar ◄──┘
                                        │  (embeddings locales multilingües)
                                        ▼
                                ChromaDB (data/chroma)
                                        │
-usuario ──► agente.chat ──► agente LangGraph ──► buscar_resultados (RAG)
+usuario ──► agente.py chat ──► agente LangGraph ──► buscar_resultados (RAG)
                                  │          └──► generar_grafica ──► resultados/graficas/*.png
                                  └──► LLM configurable (anthropic | openai | gemini | ollama)
 ```
@@ -97,16 +97,16 @@ usuario ──► agente.chat ──► agente LangGraph ──► buscar_result
 ### Uso
 
 ```bash
-uv venv .venv --python 3.12 && uv pip install --python .venv/bin/python -r requirements-agente.txt
+uv venv .venv --python 3.12 && uv pip install --python .venv/bin/python -r requirements.txt
 source .venv/bin/activate
 # 1. Llena la API key del proveedor en .env (ver .env.example)
 # 2. Exporta las detecciones (usa runs_nju/*/weights/best.pt o YOLO_WEIGHTS)
-python -m agente.exportar_detecciones --fuente nju_yolo/images/val   # o un frame completo
+python agente.py exportar --fuente nju_yolo/images/val   # o un frame completo
 # 3. Indexa (idempotente; --reset para reconstruir)
-python -m agente.indexar
+python agente.py indexar
 # 4. Conversa
-python -m agente.chat                 # interactivo: /fuentes /reindexar /modelo /nuevo /salir
-python -m agente.chat -p "¿Qué clase tiene peor desempeño y por qué?"
+python agente.py chat                 # interactivo: /fuentes /reindexar /modelo /nuevo /salir
+python agente.py chat -p "¿Qué clase tiene peor desempeño y por qué?"
 pytest tests                          # tests sin red ni API key
 ```
 

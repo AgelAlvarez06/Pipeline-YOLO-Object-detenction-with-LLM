@@ -1,6 +1,6 @@
 # Dependencias del agente de análisis (YOLO + RAG + LLM), verificadas con Python 3.12 en macOS arm64.
-# Instalar:  uv venv .venv --python 3.12 && uv pip install -r requirements-agente.txt
-#        o:  python3.12 -m venv .venv && .venv/bin/pip install -r requirements-agente.txt
+# Instalar:  uv venv .venv --python 3.12 && uv pip install -r requirements.txt
+#        o:  python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 # Detección
 ultralytics==8.4.211
