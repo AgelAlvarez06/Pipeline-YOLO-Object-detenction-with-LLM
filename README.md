@@ -91,7 +91,7 @@ best.pt + imágenes ──► agente.exportar_detecciones ──► resultados/d
                                        │
 usuario ──► agente.chat ──► agente LangGraph ──► buscar_resultados (RAG)
                                  │          └──► generar_grafica ──► resultados/graficas/*.png
-                                 └──► LLM configurable (anthropic | openai | ollama)
+                                 └──► LLM configurable (anthropic | openai | gemini | ollama)
 ```
 
 ### Uso
@@ -127,9 +127,9 @@ Las cifras se calculan al crear los documentos, no las cuenta el LLM.
 
 | Variable | Uso |
 |---|---|
-| `LLM_PROVIDER`, `LLM_MODEL` | Proveedor (`anthropic`, `openai`, `ollama`) y modelo. Por defecto `claude-opus-5-5`. |
-| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `OLLAMA_BASE_URL` | Credenciales del proveedor elegido. |
-| `LLM_MAX_TOKENS`, `LLM_EFFORT`, `LLM_TEMPERATURE` | Límite de salida; `effort` solo para Claude; `temperature` solo para OpenAI y Ollama (Claude la rechaza). |
+| `LLM_PROVIDER`, `LLM_MODEL` | Proveedor (`anthropic`, `openai`, `gemini`, `ollama`) y modelo. Por defecto `claude-opus-5-5`. |
+| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GOOGLE_API_KEY` / `OLLAMA_BASE_URL` | Credenciales del proveedor elegido (`GOOGLE_API_KEY` es la clave de Google AI Studio). |
+| `LLM_MAX_TOKENS`, `LLM_EFFORT`, `LLM_TEMPERATURE` | Límite de salida; `effort` solo para Claude; `temperature` solo para OpenAI y Ollama (Claude la rechaza y en Gemini se deja la de por defecto). |
 | `EMBEDDINGS_MODEL`, `EMBEDDINGS_DEVICE` | Modelo sentence-transformers y dispositivo (`mps`/`cpu`/`cuda`). Si lo cambias, reindexa con `--reset`. |
 | `CHROMA_DIR`, `CHROMA_COLLECTION`, `RAG_TOP_K` | Base vectorial y número de fragmentos recuperados. |
 | `YOLO_WEIGHTS`, `YOLO_CONF`, `YOLO_IMGSZ`, `TILE_SIZE`, `TILE_OVERLAP`, `DEDUP_IOU` | Inferencia y corte en tiles para la exportación. |
