@@ -10,6 +10,8 @@ Since the frames are too large to feed whole into the model, the pipeline **spli
 |---|---|
 | `yolo.py` | Full pipeline: sequence scanning, parallel tiling, training, validation and a sample prediction. |
 | `prediccion.py` | Draws the boxes predicted by the trained model, with confidence in %, on a validation image. |
+| `agente/` | Agente de análisis RAG: exporta detecciones, las indexa en ChromaDB y responde preguntas con un LLM (ver abajo). |
+| `tests/` | Tests del agente (`pytest`, sin LLM real ni red). |
 
 ## Requirements
 
@@ -73,6 +75,67 @@ It uses the most recent `best.pt` in `runs_nju/` and saves the result to `predic
 Classes: `0: pedestrian`, `1: car`, `2: bus`, `3: truck`.
 
 > Training is configured as a pilot (2 epochs, batch size 2). For a real training run, increase `epochs` and `batch` in `train_model()`.
+
+## Agente de análisis (RAG)
+
+Un agente conversacional que responde en español preguntas libres sobre los resultados de YOLO, cita de qué frame o métrica sale cada cifra y genera gráficas.
+
+```
+best.pt + imágenes ──► agente.exportar_detecciones ──► resultados/detecciones/<frame>.json
+                                                         + metricas.json
+                                                               │
+                         agente.documentos + agente.indexar ◄──┘
+                                       │  (embeddings locales multilingües)
+                                       ▼
+                               ChromaDB (data/chroma)
+                                       │
+usuario ──► agente.chat ──► agente LangGraph ──► buscar_resultados (RAG)
+                                 │          └──► generar_grafica ──► resultados/graficas/*.png
+                                 └──► LLM configurable (anthropic | openai | ollama)
+```
+
+### Uso
+
+```bash
+uv venv .venv --python 3.12 && uv pip install --python .venv/bin/python -r requirements-agente.txt
+source .venv/bin/activate
+# 1. Llena la API key del proveedor en .env (ver .env.example)
+# 2. Exporta las detecciones (usa runs_nju/*/weights/best.pt o YOLO_WEIGHTS)
+python -m agente.exportar_detecciones --fuente nju_yolo/images/val   # o un frame completo
+# 3. Indexa (idempotente; --reset para reconstruir)
+python -m agente.indexar
+# 4. Conversa
+python -m agente.chat                 # interactivo: /fuentes /reindexar /modelo /nuevo /salir
+python -m agente.chat -p "¿Qué clase tiene peor desempeño y por qué?"
+pytest tests                          # tests sin red ni API key
+```
+
+La exportación funciona con frames completos (corta en tiles, pasa las cajas a coordenadas del frame y deduplica con NMS) y con los tiles de `nju_yolo/` (los reagrupa por frame; en ese caso la cobertura es parcial y las coordenadas son aproximadas, y el agente lo advierte). En un Mac usa MPS automáticamente.
+
+### Documentos que se indexan
+
+| Tipo | Contenido |
+|---|---|
+| `resumen_global` | Totales de todos los frames, frame con más detecciones y con más vehículos. |
+| `resumen_frame` | Conteos y confianza media por clase de un frame, y sus 3 zonas con más detecciones. |
+| `region_frame` | Conteos por celda de la cuadrícula `GRID_FILAS x GRID_COLUMNAS` del frame. |
+| `metricas_modelo` | `metricas.json` por umbral IoU y por clase, con la interpretación de FP/FN. |
+
+Las cifras se calculan al crear los documentos, no las cuenta el LLM.
+
+### Variables de `.env`
+
+| Variable | Uso |
+|---|---|
+| `LLM_PROVIDER`, `LLM_MODEL` | Proveedor (`anthropic`, `openai`, `ollama`) y modelo. Por defecto `claude-opus-5-5`. |
+| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `OLLAMA_BASE_URL` | Credenciales del proveedor elegido. |
+| `LLM_MAX_TOKENS`, `LLM_EFFORT`, `LLM_TEMPERATURE` | Límite de salida; `effort` solo para Claude; `temperature` solo para OpenAI y Ollama (Claude la rechaza). |
+| `EMBEDDINGS_MODEL`, `EMBEDDINGS_DEVICE` | Modelo sentence-transformers y dispositivo (`mps`/`cpu`/`cuda`). Si lo cambias, reindexa con `--reset`. |
+| `CHROMA_DIR`, `CHROMA_COLLECTION`, `RAG_TOP_K` | Base vectorial y número de fragmentos recuperados. |
+| `YOLO_WEIGHTS`, `YOLO_CONF`, `YOLO_IMGSZ`, `TILE_SIZE`, `TILE_OVERLAP`, `DEDUP_IOU` | Inferencia y corte en tiles para la exportación. |
+| `GRID_FILAS`, `GRID_COLUMNAS` | Cuadrícula para describir la posición de las detecciones. |
+| `DETECCIONES_DIR`, `METRICAS_PATH`, `GRAFICAS_DIR` | Rutas de entrada y salida. |
+| `LANGSMITH_*` | Trazas opcionales del agente en LangSmith. |
 
 ## Results
 

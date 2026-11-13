@@ -1,0 +1,22 @@
+# Secretos
+.env
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Datos y artefactos pesados del pipeline
+nju_yolo/
+runs/
+runs_nju/
+*.pt
+
+# Agente / RAG
+data/chroma/
+resultados/
