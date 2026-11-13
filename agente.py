@@ -651,9 +651,13 @@ def documento_global(registros: list[dict]) -> Document:
         f"Resumen global de {len(registros)} frames analizados: {total} detecciones en total."
         f" Distribución por clase: {reparto}."
         f" Frames con más detecciones: {top}."
-        f" Frame con más vehículos (autos+autobuses+camiones): {mas_vehiculos['frame_id']}"
-        f" con {vehiculos(mas_vehiculos)}."
-        f" Frames indexados: {', '.join(r['frame_id'] for r in registros)}."
+        + (
+            f" Frame con más vehículos (autos+autobuses+camiones): {mas_vehiculos['frame_id']}"
+            f" con {vehiculos(mas_vehiculos)}."
+            if vehiculos(mas_vehiculos)
+            else " El modelo no detectó ningún vehículo (auto, autobús ni camión) en ningún frame."
+        )
+        + f" Frames indexados: {', '.join(r['frame_id'] for r in registros)}."
     )
     return _doc(texto, "resumen_global", tipo="resumen_global", n_frames=len(registros))
 
