@@ -1,0 +1,70 @@
+{
+  "train": {
+    "UAV-BASE-13/1": {
+      "count": 78,
+      "last": 78
+    },
+    "UAV-BASE-13/2": {
+      "count": 137,
+      "last": 216
+    },
+    "UAV-BASE-13/3": {
+      "count": 142,
+      "last": 358
+    },
+    "UAV-BASE-13/4": {
+      "count": 143,
+      "last": 501
+    },
+    "UAV-BASE-13/5": {
+      "count": 144,
+      "last": 645
+    },
+    "UAV-BASE-14/1": {
+      "count": 333,
+      "last": 978
+    },
+    "UAV-BASE-14/2": {
+      "count": 125,
+      "last": 1103
+    },
+    "UAV-BASE-14/5": {
+      "count": 110,
+      "last": 1213
+    },
+    "UAV-BASE-14/8": {
+      "count": 145,
+      "last": 1358
+    },
+    "UAV-BASE-14/9": {
+      "count": 170,
+      "last": 1528
+    },
+    "NJU-xianlin/1": {
+      "count": 174,
+      "last": 1702
+    },
+    "NJU-xianlin/5": {
+      "count": 131,
+      "last": 1833
+    },
+    "NJU-xianlin/6": {
+      "count": 221,
+      "last": 2054
+    }
+  },
+  "validation": {
+    "UAV-BASE-13/6": {
+      "count": 123,
+      "last": 125
+    },
+    "UAV-BASE-14/3": {
+      "count": 151,
+      "last": 276
+    },
+    "UAV-BASE-14/7": {
+      "count": 274,
+      "last": 550
+    }
+  }
+}
