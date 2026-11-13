@@ -1,4 +1,3 @@
-
 import json
 import os
 import random
@@ -7,8 +6,6 @@ from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, as_complete
 from io import BytesIO
 from pathlib import Path
  
-# Deben fijarse ANTES de importar datasets / huggingface_hub.
-# Sin timeout, un socket medio abierto deja la lectura bloqueada indefinidamente.
 os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "60")
 os.environ.setdefault("HF_HUB_ETAG_TIMEOUT", "30")
  
@@ -26,8 +23,7 @@ TRAIN_SEQUENCES = 5
 VAL_SEQUENCES = 1
  
 REPO = "RL-MIND/NJU-HARD-Detection"
- 
-# En Colab puedes cambiar BASE_DIR a Path("/content")
+
 BASE_DIR = Path.cwd()
 DATA_DIR = BASE_DIR / "nju_yolo"
 RUNS_DIR = BASE_DIR / "runs_nju"
@@ -43,7 +39,7 @@ OVERLAP = 128
 JPEG_QUALITY = 90
  
 # Cada worker decodifica un frame completo (~122 MP ≈ 350 MB en RGB).
-# Si te quedas sin RAM, baja NUM_WORKERS.
+# Si hay agotamiento de RAM, bajar NUM_WORKERS
 NUM_WORKERS = max(1, min(4, (os.cpu_count() or 2) - 1))
 MAX_IN_FLIGHT = NUM_WORKERS + 1  # frames en memoria a la vez
  
@@ -62,7 +58,6 @@ Image.MAX_IMAGE_PIXELS = None
  
 
 # Entorno
-
 def mount_drive_if_colab():
     """Monta Google Drive solo si se ejecuta en Colab (opcional)."""
     try:
@@ -83,7 +78,6 @@ def check_gpu():
  
 
 # Acceso al dataset (streaming)
-
 def get_stream(split, with_image=True):
     """
     with_image=True : frames completos, imagen como bytes crudos (sin decodificar).
@@ -112,7 +106,6 @@ def is_valid_row(row):
  
 
 # Escaneo de secuencias (con caché en JSON)
-
 def load_cache():
     if SEQ_CACHE.exists():
         return json.loads(SEQ_CACHE.read_text(encoding="utf-8"))
@@ -277,7 +270,6 @@ def process_frame(args):
  
 
 # Manifiestos de progreso (para reanudar tras un corte)
-
 def load_manifest(split, kind):
     path = DATA_DIR / f"{kind}_{split}.json"
     if path.exists():
@@ -432,7 +424,6 @@ def build_yolo_dataset():
  
 
 # Revisión del dataset
-
 def check_dataset():
     for split in ("train", "val"):
         images = list((DATA_DIR / "images" / split).glob("*.jpg"))
@@ -442,8 +433,7 @@ def check_dataset():
             raise RuntimeError(f"El split {split} está vacío o no tiene etiquetas.")
  
  
-# Entrenamiento, validación y predicción (sin cambios)
-
+# Entrenamiento, validación y predicción
 def train_model():
     model = YOLO("yolo11n.pt")
  
@@ -498,7 +488,6 @@ def predict_sample(best_model):
  
 
 # Main
-
 def main():
     mount_drive_if_colab()
     check_gpu()
